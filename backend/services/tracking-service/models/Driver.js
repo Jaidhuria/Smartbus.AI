@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const driverSchema = new mongoose.Schema(
   {
@@ -24,6 +25,12 @@ const driverSchema = new mongoose.Schema(
       trim: true,
     },
 
+    password: {
+      type: String,
+      required: true,
+      select: false, 
+    },
+
     busId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Bus",
@@ -43,5 +50,17 @@ const driverSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// 🔐 Hash password before saving
+driverSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// 🔎 Compare password method
+driverSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 export default mongoose.model("Driver", driverSchema);

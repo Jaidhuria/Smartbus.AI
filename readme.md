@@ -1,190 +1,126 @@
-# Smartbus.AI — AI-Powered Smart School Bus Routing & Live Tracking
+# 🚌 Smartbus.AI
 
-## Overview
+> **AI-Powered Smart School Bus Routing & Live Tracking**  
+> 🚀 Revolutionizing school bus management with intelligent routing, real-time tracking, and automated attendance.
 
-Smartbus.AI is an AI-driven school bus routing and tracking platform designed to reduce transportation costs, improve safety, and provide real-time visibility to parents and administrators.
+---
 
-### Supported Roles
-- **Admin**: Route generation, fleet management, analytics
-- **Parent**: Live tracking, ETA alerts, attendance monitoring
-- **Student**: Stop information, bus ETA, attendance history
-- **Driver**: Trip management, location sharing, stop navigation
+## 📋 Table of Contents
 
-## Problem Statement & Solution
+- [Overview](#-overview)
+- [Features](#-features)  
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [API Endpoints](#-api-endpoints)
+- [Development](#-development)
+- [Deployment](#-deployment)
+- [License](#-license)
 
-**Challenges:**
-- Fixed routes persist even when students are absent
-- No real-time tracking or ETA updates
-- Manual, error-prone attendance systems
-- Inefficient fuel usage and longer travel times
-- Lack of analytics and route optimization
+---
 
-**Smartbus.AI Solution:**
-- AI-optimized morning routes using clustering & OSRM
-- RFID-based automated attendance logging
-- Dynamic evening rerouting based on attendance
-- Real-time GPS tracking via Socket.io
-- Parent portal with live map & ETA alerts
-- Admin analytics and exportable reports
+## 📌 Overview
 
-## Key Features
+Smartbus.AI is an intelligent school bus management platform that helps schools **reduce costs**, **improve safety**, and provide **real-time visibility** to parents, drivers, and administrators.
 
-### Admin Dashboard
-- CSV student dataset upload & management
-- Static morning route generation (AI-optimized)
-- Dynamic evening route rerouting
-- Fleet live map with real-time bus locations
-- Attendance monitoring dashboard
-- Analytics & report export (CSV/PDF)
-
-### Parent Portal
-- Select and track assigned child
-- Live bus tracking map with ETA
-- Route & arrival alerts
-- Attendance notification history
-
-### Student Portal
-- Assigned bus stop information
-- Real-time bus ETA
-- Attendance history & status
-- Student profile management
-
-### Driver Portal
-- Trip start/end management
-- Stop list & optimized route view
-- Real-time GPS location sharing
-- RFID tap simulation (MVP)
-- Emergency SOS button (optional)
-
-## Architecture
-
-Smartbus.AI is architected as a modular monolith with microservice patterns prepared for future scaling.
-
-### System Workflows
-
-**Morning Route Generation (Static Optimization)**
-```
-Load Students → Cluster (KMeans/DBSCAN) → Assign to Buses → OSRM Trip API → Store Route + ETA
-```
-
-**Evening Dynamic Rerouting**
-```
-Mark Absent Students → Remove Stops → Recompute via OSRM → Update ETA → Notify Parents
-```
-
-**Real-Time Tracking**
-```
-Driver GPS → Server Broadcast → Parent Map Update → ETA Recalculation → Admin Fleet View
-```
-
-**RFID Attendance**
-```
-Student RFID Tap → Backend Logs Event → Mark Present/Absent → Update Bus Roster → Trigger Reroute
-```
-
-## Tech Stack
-
-### Frontend
-- **React.js** - UI framework
-- **Leaflet/Mapbox** - Map integration
-- **Tailwind CSS** - Styling
-- **Socket.io-client** - Real-time updates
-
-### Backend
-- **Node.js + Express.js** - Server framework
-- **Socket.io** - Real-time communication
-- **BullMQ** - Job queue processing
-- **Redis** - Caching & session management
-
-### Database & Services
-- **MongoDB Atlas** - Primary database
-- **OSRM Trip API** - Route optimization engine
-- **OpenStreetMap** - Geographic data
-
-### Deployment
-- **Frontend**: Vercel
-- **Backend**: Railway / Render
-- **Database**: MongoDB Atlas
-- **Cache**: Upstash Redis
-
-## Backend Services
-
-- **Auth Service**: JWT tokens, bcrypt hashing, role-based access control
-- **Student Service**: CRUD operations, geo-queries, CSV import/validation
-- **Routing Service**: KMeans clustering, bus assignment, OSRM route generation, evening rerouting
-- **Attendance Service**: RFID tap events, present/absent tracking, trip roster updates
-- **Tracking Service**: Live GPS storage, Socket.io broadcast, trip state management
-- **Analytics Service**: Route efficiency, fuel/km savings, daily/monthly reports
-
-## Project Structure
-
-```
-smartbus-ai/
-├── backend/
-│   ├── services/
-│   │   ├── attendance-service/
-│   │   ├── auth-service/
-│   │   ├── routing-service/
-│   │   └── tracking-service/
-│   ├── ngnix/
-│   │   └── ngnix.conf
-│   ├── package.json
-│   └── .env.example
-├── frontend/
-│   ├── admin/
-│   ├── parent/
-│   ├── driver/
-│   └── student/
-├── datasets/
-│   ├── students.csv
-│   └── buses.json
-└── README.md
-```
-
-## Installation & Setup
-
-### Prerequisites
-- Node.js (v16+)
-- MongoDB Atlas account
-- Redis instance (Upstash or local)
-- OSRM API access
-
-### Quick Start (Bash)
+### 👥 Four Role-Based Portals
 
 ```bash
-# Clone repository
-git clone https://github.com/your-username/smartbus-ai.git
-cd smartbus-ai
+Admin      → Route management, fleet tracking, analytics
+Parent     → Live tracking, ETA alerts, attendance status  
+Student    → Bus info, pickup/drop points, ETA countdown
+Driver     → Route navigation, attendance logging, trip management
+```
 
-# Backend setup
+### 💡 Why Smartbus.AI?
+
+| Challenge | Solution |
+|-----------|----------|
+| ❌ Fixed routes with empty seats | ✅ AI clustering + dynamic rerouting |
+| ❌ No parent visibility | ✅ Real-time GPS + ETA notifications |
+| ❌ Manual attendance errors | ✅ RFID/NFC auto-logging |
+| ❌ High fuel costs | ✅ Route optimization with OSRM |
+| ❌ Zero analytics | ✅ Comprehensive admin dashboard |
+
+---
+
+## ✨ Features
+
+### 🎯 Admin Dashboard
+- 📤 CSV bulk import for students  
+- 🗺️ AI-optimized morning routes & evening rerouting
+- 📊 Live fleet dashboard with real-time tracking  
+- 📋 Attendance monitoring & reporting
+- 📈 Analytics & exportable reports (CSV/PDF)
+
+### 🟢 Parent Portal
+- 📍 Live bus location on interactive map
+- ⏱️ Real-time ETA & push notifications
+- 👁️ Child attendance status & history
+- 🔔 Notification hub & alerts
+
+### 🟡 Student Portal
+- 📍 Assigned pickup/drop locations
+- 🚌 Bus details, driver info, capacity
+- ⏱️ Live ETA countdown timer
+- 📜 Monthly attendance records
+
+### 🔴 Driver Portal
+- 🗺️ Turn-by-turn route navigation
+- 🎟️ RFID attendance terminal
+- ▶️ Trip start/end controls
+- 📍 Real-time GPS location sharing
+
+---
+
+## 🔥 Tech Stack
+
+```
+Backend        → Node.js + Express.js + Socket.io
+Database       → MongoDB Atlas
+Real-time      → Socket.io + Redis  
+Routing Engine → OSRM Trip API
+Frontend       → React.js + Leaflet/Mapbox + Tailwind CSS
+Deployment     → Docker + Railway/Render
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/Jaidhuria/Smartbus.AI.git
+cd Smartbus.AI
+```
+
+### 2️⃣ Backend Setup
+
+```bash
 cd backend
 npm install
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your credentials:
-# - MONGO_URI (MongoDB connection string)
-# - REDIS_URL (Redis connection string)
-# - JWT_SECRET (random string for JWT)
-# - OSRM_BASE_URL (OSRM API endpoint)
-# - PORT (default: 5000)
-
-# Start development server
-npm run dev
 ```
 
-### Environment Configuration (.env)
+### 3️⃣ Environment Configuration
 
 ```bash
+cp .env.example .env
+```
+
+**Edit `.env` with your credentials:**
+
+```env
 PORT=5000
 NODE_ENV=development
 
 # MongoDB
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/smartbusAI
 
-# JWT Secrets
-JWT_SECRET=your_secure_jwt_secret_key_here
-JWT_REFRESH_SECRET=your_secure_refresh_secret_key_here
+# JWT
+JWT_SECRET=your_secret_key_here
+JWT_REFRESH_SECRET=your_refresh_secret_here
+JWT_EXPIRY=7d
 
 # Redis
 REDIS_URL=redis://default:<password>@<host>:<port>
@@ -192,194 +128,444 @@ REDIS_URL=redis://default:<password>@<host>:<port>
 # OSRM Routing
 OSRM_BASE_URL=https://router.project-osrm.org
 
-# CORS
-CORS_ORIGIN=http://localhost:3000
+# Server
+LOG_LEVEL=debug
 ```
 
-### Seed Initial Data (Optional)
+### 4️⃣ Start Development Server
 
 ```bash
-# Seed students dataset
+npm run dev
+```
+
+**Server runs on:** `http://localhost:5000`
+
+### 5️⃣ Seed Sample Data
+
+```bash
+# Seed students
 curl -X POST http://localhost:5000/api/seed/students
 
-# Seed buses dataset
+# Seed buses  
 curl -X POST http://localhost:5000/api/seed/buses
 ```
 
-## Core API Endpoints
+---
 
-### Authentication
+## 📁 Project Structure
+
 ```
-POST   /auth/login              # User login
-POST   /auth/refresh            # Refresh JWT token
-POST   /auth/logout             # User logout
+Smartbus.AI/
+├── backend/
+│   ├── config/
+│   │   ├── db.js              # MongoDB connection
+│   │   └── env.js             # Environment config
+│   │
+│   ├── middleware/
+│   │   ├── asyncHandler.js    # Async middleware wrapper
+│   │   └── errorHandler.js    # Global error handler
+│   │
+│   ├── controllers/
+│   │   ├── driverController.js
+│   │   ├── locationController.js
+│   │   ├── sosController.js
+│   │   └── tripController.js
+│   │
+│   ├── models/
+│   │   ├── Bus.js
+│   │   ├── Driver.js
+│   │   ├── LiveLocation.js
+│   │   └── TripLog.js
+│   │
+│   ├── routes/
+│   │   ├── driverRoutes.js
+│   │   ├── locationRoutes.js
+│   │   ├── sosRoutes.js
+│   │   └── tripRoutes.js
+│   │
+│   ├── services/
+│   │   ├── authService.js
+│   │   └── routeService.js
+│   │
+│   ├── sockets/
+│   │   └── sockets.js         # WebSocket handlers
+│   │
+│   ├── utils/
+│   │   ├── ApiError.js        # Custom error class
+│   │   └── ApiResponse.js     # Response formatter
+│   │
+│   ├── server.js              # Entry point
+│   ├── app.js                 # Express app
+│   ├── package.json
+│   └── .env.example
+│
+└── README.md
 ```
 
-### Students
-```
-GET    /api/students            # Get all students
-GET    /api/students/:id        # Get student by ID
-POST   /api/students            # Create new student
-PUT    /api/students/:id        # Update student
-DELETE /api/students/:id        # Delete student
-POST   /api/students/import-csv # Bulk import from CSV
-```
+---
 
-### Routing
-```
-POST   /api/routes/morning      # Generate morning route
-POST   /api/routes/evening      # Generate evening route (with dynamic rerouting)
-GET    /api/routes/active       # Get active route (query: ?busId=BUS12)
-```
+## 🔌 API Endpoints
 
-### Attendance
-```
-POST   /api/attendance/tap      # Log RFID attendance tap
-GET    /api/attendance/history  # Get attendance history (query: ?studentId=ST101)
-GET    /api/attendance/daily    # Get daily attendance report
-```
-
-### Tracking
-```
-POST   /api/tracking/location   # Log GPS location
-GET    /api/tracking/live       # Get live locations (query: ?busId=BUS12)
-POST   /api/trip/start          # Start trip
-POST   /api/trip/end            # End trip
-GET    /api/trip/history        # Get trip history
-```
-
-### Analytics
-```
-GET    /api/analytics/summary   # Summary stats
-GET    /api/analytics/daily     # Daily report
-GET    /api/analytics/monthly   # Monthly report
-GET    /api/analytics/export/csv  # Export analytics as CSV
-GET    /api/analytics/export/pdf  # Export analytics as PDF
-```
-
-## Security Features
-
-- **HTTPS/TLS** encrypted communication
-- **JWT** with short-lived access tokens & refresh tokens
-- **bcrypt** password hashing (salt rounds: 10-12)
-- **Role-Based Access Control (RBAC)** for each user role
-- **Input Validation** using Joi/Zod
-- **Rate Limiting** on auth & critical endpoints
-- **NoSQL Injection Prevention** for all queries
-- **Socket.io JWT Authentication** for real-time connections
-- **Audit Logging** for admin actions
-
-## Performance & Scaling
-
-### Optimization Strategies
-- **Redis Caching** for active routes & latest GPS positions
-- **MongoDB Indexing** on: `studentId`, `busId`, `date`, geo-spatial indexes
-- **Socket.io Rooms** organized by `busId` for efficient broadcasting
-- **GPS Throttling** (1 update per 2 seconds) to reduce load
-- **BullMQ Job Queue** for heavy operations:
-  - Route generation & clustering
-  - Analytics report generation
-  - Batch email notifications
-- **TTL Indexes** for automatic live location data cleanup
-
-### Scaling Path
-1. **Phase 1** (Current): Modular monolith on single Node.js instance
-2. **Phase 2**: Horizontal scaling with load balancer
-3. **Phase 3**: Extract services to separate microservices
-4. **Phase 4**: Kafka for event streaming, distributed caching
-
-## Database Schema
-
-| Collection | Key Fields | Purpose |
-|---|---|---|
-| `users` | email, passwordHash, role, linkedEntityId | User authentication & authorization |
-| `students` | studentId, name, point [lat, lng], parentIds, busId | Student records & assignment |
-| `parents` | parentId, name, phone, childrenIds | Parent contact & child mapping |
-| `drivers` | driverId, name, busId, licenseNumber | Driver assignment to buses |
-| `buses` | busId, capacity, mileageKmpl, location, status | Fleet management |
-| `routes` | routeId, busId, type, stops[], geometry, createdAt | Route definitions & optimization results |
-| `attendanceLogs` | studentId, busId, boardingTime, droppingTime, status | Attendance tracking |
-| `liveLocations` | busId, lat, lng, speed, heading, updatedAt | Real-time GPS data (TTL: 1 hour) |
-| `tripLogs` | tripId, busId, driverId, startTime, endTime, status, distance | Trip analytics |
-
-## Demo Workflow
-
-### Morning Scenario
-1. Admin uploads `students.csv` via dashboard
-2. System generates optimized morning routes using KMeans clustering
-3. Parent receives assigned bus stop & ETA
-4. Driver starts trip - location begins broadcasting
-5. Students board - RFID taps logged for attendance
-6. Real-time map updates all parent portals
-
-### Evening Scenario
-1. System identifies absent students from attendance logs
-2. Generates optimized evening route (skipping absent stops)
-3. Parents receive updated ETA notifications instantly
-4. Driver follows new optimal route
-5. Admin dashboard shows route changes & fuel savings
-
-### Analytics View
-- Admin sees daily: students transported, fuel consumed, routes optimized, SOS events
-- Export reports in CSV/PDF format for school administration
-- Month-over-month trends and cost comparisons
-
-## Getting Started
-
-### For Developers
-1. Fork & clone the repository
-2. Set up backend with `npm install` and `.env` configuration
-3. Run `npm run dev` to start the development server
-4. Reference API documentation for integration points
-5. Frontend teams work in parallel on React portals (admin, parent, driver, student)
-
-### For Deployment
+### 🔐 Authentication
 ```bash
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Using Docker (if available)
-docker build -t smartbus-ai .
-docker run -p 5000:5000 --env-file .env smartbus-ai
+POST   /auth/login           # User login
+POST   /auth/refresh         # Refresh JWT token
+POST   /auth/logout          # Logout
 ```
 
-### For Contributing
-- Create feature branch: `git checkout -b feature/your-feature`
-- Commit changes: `git commit -m "Add your feature"`
-- Push to branch: `git push origin feature/your-feature`
-- Open pull request for review
+### 🧑‍🎓 Students
+```bash
+GET    /students             # List all students
+GET    /students/:id         # Get student by ID
+POST   /students             # Create student
+PUT    /students/:id         # Update student
+DELETE /students/:id         # Delete student
+POST   /students/import-csv  # Bulk import from CSV
+```
 
-## Troubleshooting
+### 🚌 Buses & Drivers
+```bash
+GET    /buses                # List all buses
+GET    /drivers              # List all drivers
+GET    /drivers/:id          # Get driver by ID
+```
 
-**OSRM Connection Failed**
-- Verify OSRM_BASE_URL is correct and accessible
-- Check network connectivity to OSRM service
-- Use fallback static routes if OSRM is unavailable
+### 🧭 Routing
+```bash
+POST   /routes/morning              # Generate morning routes
+POST   /routes/evening?busId=BUS12  # Generate evening reroute
+GET    /routes/active?busId=BUS12   # Get active route
+GET    /routes/:routeId             # Get specific route
+```
 
-**MongoDB Connection Issues**
-- Verify MONGO_URI credentials and IP whitelist
-- Ensure MongoDB Atlas cluster is running
-- Check network firewall settings
+### 📍 Live Tracking
+```bash
+POST   /tracking/location     # Update bus GPS location
+GET    /tracking/live?busId=BUS12  # Get live locations
+```
 
-**Redis Connection Issues**
-- Verify REDIS_URL format and credentials
-- Ensure Redis instance is running and accessible
-- Check connection timeout settings
+### 🎟️ Attendance
+```bash
+POST   /attendance/tap                 # Log RFID tap
+GET    /attendance/history             # Get attendance records
+GET    /attendance/bus/:busId          # Get bus attendance
+```
 
-**Socket.io Real-Time Updates Not Working**
-- Verify JWT token is being sent in Socket.io handshake
-- Check CORS_ORIGIN configuration matches client URL
-- Ensure client has Socket.io-client library installed
+### ▶️ Trip Management
+```bash
+POST   /trip/start            # Start trip
+POST   /trip/end              # End trip
+GET    /trip/:tripId          # Get trip details
+GET    /trip/active           # Get active trips
+```
 
-## License
+### 📊 Analytics
+```bash
+GET    /analytics/summary     # Get summary stats
+GET    /analytics/export/csv  # Export CSV report
+GET    /analytics/export/pdf  # Export PDF report
+```
 
-MIT License - See LICENSE file for details
+---
 
-## Contributors
+## 🧪 Testing API Endpoints
 
-- **Jai Dhuria** — Project Lead & Developer
+### Test Authentication
 
-Open for contributions! Please fork, create a feature branch, and submit pull requests.
+```bash
+# Login
+curl -X POST http://localhost:5000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@smartbus.ai","password":"password123"}'
+
+# Response:
+# {
+#   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+#   "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+# }
+```
+
+### Test Route Generation
+
+```bash
+# Generate morning routes
+curl -X POST http://localhost:5000/routes/morning \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+### Test Live Tracking
+
+```bash
+# Update bus location
+curl -X POST http://localhost:5000/tracking/location \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "busId": "BUS001",
+    "latitude": 28.6139,
+    "longitude": 77.2090,
+    "speed": 45
+  }'
+```
+
+### Test Attendance
+
+```bash
+# Log student tap
+curl -X POST http://localhost:5000/attendance/tap \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "studentId": "ST101",
+    "busId": "BUS001",
+    "eventType": "boarding"
+  }'
+```
+
+---
+
+## 🔒 Security Features
+
+```
+✅ JWT authentication (access + refresh tokens)
+✅ bcrypt password hashing (12 salt rounds)
+✅ Role-based access control (RBAC)
+✅ Input validation & sanitization
+✅ Rate limiting on auth endpoints
+✅ Socket.io JWT verification
+✅ HTTPS/TLS enforcement
+✅ NoSQL injection prevention
+✅ Audit logging for admin actions
+```
+
+---
+
+## 🛠️ Development
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+### Run Production Build
+
+```bash
+npm run start
+```
+
+### Lint Code
+
+```bash
+npm run lint
+```
+
+### Format Code
+
+```bash
+npm run format
+```
+
+---
+
+## 📦 Dependencies
+
+```json
+{
+  "express": "^4.18.0",
+  "mongoose": "^7.0.0",
+  "socket.io": "^4.5.0",
+  "jsonwebtoken": "^9.0.0",
+  "bcryptjs": "^2.4.3",
+  "redis": "^4.6.0",
+  "dotenv": "^16.0.0",
+  "cors": "^2.8.5",
+  "axios": "^1.3.0"
+}
+```
+
+---
+
+## 🚢 Deployment
+
+### Docker Setup
+
+```bash
+# Build Docker image
+docker build -t smartbus:latest .
+
+# Run container
+docker run -p 5000:5000 \
+  --env-file .env \
+  -e MONGO_URI=$MONGO_URI \
+  smartbus:latest
+```
+
+### Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Deploy to Railway
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login to Railway
+railway login
+
+# Deploy
+railway up
+
+# View logs
+railway logs
+```
+
+### Deploy to Render
+
+```bash
+# Connect your GitHub repo to Render
+# Create new Web Service
+# Set environment variables in dashboard
+# Deploy
+```
+
+---
+
+## 📊 Git Workflow
+
+### Clone & Setup
+
+```bash
+git clone https://github.com/Jaidhuria/Smartbus.AI.git
+cd Smartbus.AI
+npm install
+```
+
+### Create Feature Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### Commit Changes
+
+```bash
+git add .
+git commit -m "feat: add your feature description"
+```
+
+### Push to Remote
+
+```bash
+git push origin feature/your-feature-name
+```
+
+### Create Pull Request
+
+```bash
+# Open PR on GitHub for code review
+```
+
+### Merge to Main
+
+```bash
+git checkout main
+git pull origin main
+git merge feature/your-feature-name
+git push origin main
+```
+
+### Deployment Push
+
+```bash
+# For production deployment
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+---
+
+## 🗓️ Project Roadmap
+
+| Phase | Status | Milestones |
+|-------|--------|-----------|
+| **0-1** | ✅ | MVP setup & dataset preparation |
+| **2-3** | ✅ | Backend core & OSRM integration |
+| **4-5** | 🚀 | Parent & Admin portals |
+| **6-8** | 🚀 | Attendance & real-time tracking |
+| **9-13** | 📋 | Analytics, deployment & polish |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Follow this process:
+
+```bash
+# 1. Fork the repo
+# 2. Create feature branch
+git checkout -b feature/amazing-feature
+
+# 3. Make changes & commit
+git add .
+git commit -m "feat: add amazing feature"
+
+# 4. Push to your fork
+git push origin feature/amazing-feature
+
+# 5. Open Pull Request on GitHub
+```
+
+### Code Standards
+
+- Use ESLint for JavaScript
+- Follow REST API conventions
+- Add JSDoc comments for functions
+- Write tests for new features
+- Update README if adding features
+
+---
+
+## 📄 License
+
+MIT License © 2026 Smartbus.AI
+
+See [LICENSE](LICENSE) for details.
+
+---
+
+## 👥 Support & Contact
+
+**Project Lead:** Jai Dhuria  
+**Repository:** [Jaidhuria/Smartbus.AI](https://github.com/Jaidhuria/Smartbus.AI)  
+**Issues:** [GitHub Issues](https://github.com/Jaidhuria/Smartbus.AI/issues)  
+
+---
+
+## 🎯 Getting Started Checklist
+
+- [ ] Clone repository
+- [ ] Install dependencies (`npm install`)
+- [ ] Copy `.env.example` to `.env`
+- [ ] Configure MongoDB URI
+- [ ] Configure JWT secrets
+- [ ] Configure Redis URL
+- [ ] Run `npm run dev`
+- [ ] Seed data (`curl -X POST http://localhost:5000/api/seed/students`)
+- [ ] Test endpoints with curl or Postman
+- [ ] Read API documentation
+- [ ] Start building!
+
+---
+
+**Happy coding! 🚀**
