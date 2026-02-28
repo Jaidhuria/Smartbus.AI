@@ -160,85 +160,99 @@ exports.login = async (req, res) => {
 };
 const otpGenerator = require("otp-generator");
 const transporter = require("../config/mailer");
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
 
-let otpStorage = {};
+let otpStore = {};
+
 
 // SEND OTP
-exports.sendOTP = async (req,res)=>{
+exports.sendOTP = async (req, res) => {
 
- const {email} = req.body;
+ const { email } = req.body;
 
- try{
+ try {
 
-  const user = await User.findOne({email});
+  const user = await User.findOne({ email });
 
-  if(!user){
-   return res.status(404).json({message:"User not found"});
+  if (!user) {
+   return res.status(404).json({ message: "User not found" });
   }
 
-  const otp = otpGenerator.generate(6,{
-   upperCaseAlphabets:false,
-   specialChars:false
+  const otp = otpGenerator.generate(6, {
+   upperCaseAlphabets: false,
+   lowerCaseAlphabets: false,
+   specialChars: false,
   });
 
-  otpStorage[email] = otp;
+  otpStore[email] = otp;
 
   await transporter.sendMail({
-   from:process.env.EMAIL,
-   to:email,
-   subject:"Password Reset OTP",
-   text:`Your OTP is ${otp}`
+   from: process.env.EMAIL,
+   to: email,
+   subject: "Password Reset OTP",
+   text: `Your OTP is ${otp}`
   });
 
-  res.json({message:"OTP sent successfully"});
+  res.json({
+   message: "OTP sent successfully"
+  });
 
- }catch(err){
+ } catch (error) {
 
-  res.status(500).json({message:"Server error"});
+  res.status(500).json({
+   message: "Server error"
+  });
+
  }
 
 };
 
 
 // VERIFY OTP
+exports.verifyOTP = (req, res) => {
 
-exports.verifyOTP = (req,res)=>{
+ const { email, otp } = req.body;
 
- const {email,otp} = req.body;
+ if (otpStore[email] === otp) {
 
- if(otpStorage[email] === otp){
+  return res.json({
+   message: "OTP verified"
+  });
 
-  return res.json({message:"OTP verified"});
  }
 
- res.status(400).json({message:"Invalid OTP"});
+ res.status(400).json({
+  message: "Invalid OTP"
+ });
+
 };
 
 
 // RESET PASSWORD
+exports.resetPassword = async (req, res) => {
 
-exports.resetPassword = async (req,res)=>{
+ const { email, password } = req.body;
 
- const {email,password} = req.body;
+ try {
 
- try{
-
-  const hashedPassword = await bcrypt.hash(password,10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   await User.updateOne(
-   {email},
-   {password:hashedPassword}
+   { email },
+   { password: hashedPassword }
   );
 
-  delete otpStorage[email];
+  delete otpStore[email];
 
-  res.json({message:"Password updated successfully"});
+  res.json({
+   message: "Password updated successfully"
+  });
 
- }catch(err){
+ } catch (error) {
 
-  res.status(500).json({message:"Server error"});
+  res.status(500).json({
+   message: "Server error"
+  });
+
  }
 
 };
