@@ -189,7 +189,7 @@ exports.sendOTP = async (req, res) => {
    from: process.env.EMAIL,
    to: email,
    subject: "Password Reset OTP",
-   text: `Your OTP is ${otp}`
+   text: `SmartBus: Your verification code is ${otp}. Do not share this code with anyone.`
   });
 
   res.json({
