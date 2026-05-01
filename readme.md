@@ -1,7 +1,7 @@
 # 🚌 Smartbus.AI
 
 > **AI-Powered Smart School Bus Routing & Live Tracking**  
-> 🚀 Revolutionizing school bus management with intelligent routing, real-time tracking, and automated attendance.
+> Revolutionizing school bus management with intelligent routing, real-time tracking, and automated attendance.
 
 ---
 
