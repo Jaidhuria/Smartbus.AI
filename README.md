@@ -1,297 +1,571 @@
-<div align="center">
+#  Smartbus.AI
 
-#  Smartbus — Auth Service
-
-**Production-ready authentication & role-based access control backend**
-
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
-![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
-
-</div>
+> **AI-Powered Smart School Bus Routing & Live Tracking**  
+> Revolutionizing school bus management with intelligent routing, real-time tracking, and automated attendance.
 
 ---
 
-A standalone authentication microservice for the Smartbus platform. Handles user registration, JWT login, Google OAuth, OTP-based password reset, and full Firebase RBAC with custom claims and Firestore security rules.
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)  
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [API Endpoints](#-api-endpoints)
+- [Development](#-development)
+- [Deployment](#-deployment)
+- [License](#-license)
 
 ---
 
-## Tech Stack
+## 📌 Overview
 
-| Layer | Technology |
-|---|---|
-| Runtime & Framework | Node.js, Express.js |
-| Database | MongoDB + Mongoose |
-| Auth | JWT, bcryptjs, Google Auth Library |
-| Cloud | Firebase Admin SDK, Cloud Functions, Firestore |
-| Email | Nodemailer |
-| Security | Helmet, CORS, Express Rate Limit, Zod, reCAPTCHA |
+Smartbus.AI is an intelligent school bus management platform that helps schools **reduce costs**, **improve safety**, and provide **real-time visibility** to parents, drivers, and administrators.
 
----
-
-## Project Structure
-
-```
-auth-service/
-├── src/
-│   ├── server.js                   # Entry point
-│   ├── config/                     # DB & mailer setup
-│   ├── controllers/authController.js
-│   ├── models/user.js              # Mongoose schema
-│   ├── routes/authRoutes.js
-│   └── middleware/authMiddleware.js # JWT + role guard
-├── functions/
-│   ├── index.js                    # Cloud Functions: onUserCreated, setUserRole
-│   └── serviceAccountKey.json     
-├── firestore.rules                 # Role-based DB security
-└── firebase.json
-```
-
----
-
-## User Roles
-
-| Role | Access Level |
-|---|---|
-| `user` | Default — standard access |
-| `driver` | Driver-specific routes |
-| `manager` | Management routes |
-| `admin` | Full access + user management |
-
-> Firebase Cloud Functions use `viewer / editor / admin` as custom JWT claims. Map to application roles as needed.
-
----
-
-## API Reference
-
-**Base URL:** `/api/auth`
-
-### Public
-
-| Method | Route | Description |
-|---|---|---|
-| `POST` | `/register` | Create account |
-| `POST` | `/login` | Login → JWT |
-| `POST` | `/google` | Google OAuth |
-| `POST` | `/send-otp` | Email OTP for reset |
-| `POST` | `/verify-otp` | Verify OTP |
-| `POST` | `/reset-password` | Set new password |
-
-### Authenticated
-
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/profile` | Get own profile |
-| `PUT` | `/profile` | Update own profile |
-
-### Admin Only
-
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/users` | List all users |
-| `GET` | `/users/:id` | Get user by ID |
-| `PUT` | `/users/:id/role` | Change user role |
-| `PUT` | `/users/:id/status` | Activate / deactivate |
-| `DELETE` | `/users/:id` | Delete user |
-
-<details>
-<summary><strong>Example requests</strong></summary>
-
-```jsonc
-// POST /register
-{
-  "name": "Jane Smith",
-  "email": "jane@example.com",
-  "password": "securepassword",
-  "captchaToken": "recaptcha_token",
-  "role": "manager"          // optional, defaults to "user"
-}
-
-// POST /login — response
-{
-  "_id": "64f1a...",
-  "name": "Jane Smith",
-  "email": "jane@example.com",
-  "role": "manager",
-  "token": "eyJhbGci..."
-}
-
-// PUT /users/:id/role
-// Authorization: Bearer <admin_token>
-{ "role": "driver" }
-```
-
-</details>
-
----
-
-## Quick Start
+### 👥 Four Role-Based Portals
 
 ```bash
-# 1. Install
+Admin      → Route management, fleet tracking, analytics
+Parent     → Live tracking, ETA alerts, attendance status  
+Student    → Bus info, pickup/drop points, ETA countdown
+Driver     → Route navigation, attendance logging, trip management
+```
+
+### 💡 Why Smartbus.AI?
+
+| Challenge | Solution |
+|-----------|----------|
+| ❌ Fixed routes with empty seats | ✅ AI clustering + dynamic rerouting |
+| ❌ No parent visibility | ✅ Real-time GPS + ETA notifications |
+| ❌ Manual attendance errors | ✅ RFID/NFC auto-logging |
+| ❌ High fuel costs | ✅ Route optimization with OSRM |
+| ❌ Zero analytics | ✅ Comprehensive admin dashboard |
+
+---
+
+## ✨ Features
+
+### 🎯 Admin Dashboard
+- 📤 CSV bulk import for students  
+- 🗺️ AI-optimized morning routes & evening rerouting
+- 📊 Live fleet dashboard with real-time tracking  
+- 📋 Attendance monitoring & reporting
+- 📈 Analytics & exportable reports (CSV/PDF)
+
+### 🟢 Parent Portal
+- 📍 Live bus location on interactive map
+- ⏱️ Real-time ETA & push notifications
+- 👁️ Child attendance status & history
+- 🔔 Notification hub & alerts
+
+### 🟡 Student Portal
+- 📍 Assigned pickup/drop locations
+- 🚌 Bus details, driver info, capacity
+- ⏱️ Live ETA countdown timer
+- 📜 Monthly attendance records
+
+### 🔴 Driver Portal
+- 🗺️ Turn-by-turn route navigation
+- 🎟️ RFID attendance terminal
+- ▶️ Trip start/end controls
+- 📍 Real-time GPS location sharing
+
+---
+
+## 🔥 Tech Stack
+
+```
+Backend        → Node.js + Express.js + Socket.io
+Database       → MongoDB Atlas
+Real-time      → Socket.io + Redis  
+Routing Engine → OSRM Trip API
+Frontend       → React.js + Leaflet/Mapbox + Tailwind CSS
+Deployment     → Docker + Railway/Render
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/Jaidhuria/Smartbus.AI.git
+cd Smartbus.AI
+```
+
+### 2️⃣ Backend Setup
+
+```bash
+cd backend
 npm install
+```
 
-# 2. Configure — create .env
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-RECAPTCHA_SECRET=your_recaptcha_secret
-EMAIL=your@gmail.com
-EMAIL_PASS=your_app_password
+### 3️⃣ Environment Configuration
+
+```bash
+cp .env.example .env
+```
+
+**Edit `.env` with your credentials:**
+
+```env
 PORT=5000
+NODE_ENV=development
 
-# 3. Run
-npm run dev       # development (nodemon)
-npm start         # production
+# MongoDB
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/smartbusAI
+
+# JWT
+JWT_SECRET=your_secret_key_here
+JWT_REFRESH_SECRET=your_refresh_secret_here
+JWT_EXPIRY=7d
+
+# Redis
+REDIS_URL=redis://default:<password>@<host>:<port>
+
+# OSRM Routing
+OSRM_BASE_URL=https://router.project-osrm.org
+
+# Server
+LOG_LEVEL=debug
+```
+
+### 4️⃣ Start Development Server
+
+```bash
+npm run dev
+```
+
+**Server runs on:** `http://localhost:5000`
+
+### 5️⃣ Seed Sample Data
+
+```bash
+# Seed students
+curl -X POST http://localhost:5000/api/seed/students
+
+# Seed buses  
+curl -X POST http://localhost:5000/api/seed/buses
 ```
 
 ---
 
-## Firebase RBAC Setup
+## 📁 Project Structure
 
-<details>
-<summary><strong>Step-by-step guide (expand)</strong></summary>
+```
+Smartbus.AI/
+├── backend/
+│   ├── config/
+│   │   ├── db.js              # MongoDB connection
+│   │   └── env.js             # Environment config
+│   │
+│   ├── middleware/
+│   │   ├── asyncHandler.js    # Async middleware wrapper
+│   │   └── errorHandler.js    # Global error handler
+│   │
+│   ├── controllers/
+│   │   ├── driverController.js
+│   │   ├── locationController.js
+│   │   ├── sosController.js
+│   │   └── tripController.js
+│   │
+│   ├── models/
+│   │   ├── Bus.js
+│   │   ├── Driver.js
+│   │   ├── LiveLocation.js
+│   │   └── TripLog.js
+│   │
+│   ├── routes/
+│   │   ├── driverRoutes.js
+│   │   ├── locationRoutes.js
+│   │   ├── sosRoutes.js
+│   │   └── tripRoutes.js
+│   │
+│   ├── services/
+│   │   ├── authService.js
+│   │   └── routeService.js
+│   │
+│   ├── sockets/
+│   │   └── sockets.js         # WebSocket handlers
+│   │
+│   ├── utils/
+│   │   ├── ApiError.js        # Custom error class
+│   │   └── ApiResponse.js     # Response formatter
+│   │
+│   ├── server.js              # Entry point
+│   ├── app.js                 # Express app
+│   ├── package.json
+│   └── .env.example
+│
+└── README.md
+```
 
-### 1 — Install & initialise
+---
+
+## 🔌 API Endpoints
+
+### 🔐 Authentication
+```bash
+POST   /auth/login           # User login
+POST   /auth/refresh         # Refresh JWT token
+POST   /auth/logout          # Logout
+```
+
+### 🧑‍🎓 Students
+```bash
+GET    /students             # List all students
+GET    /students/:id         # Get student by ID
+POST   /students             # Create student
+PUT    /students/:id         # Update student
+DELETE /students/:id         # Delete student
+POST   /students/import-csv  # Bulk import from CSV
+```
+
+### 🚌 Buses & Drivers
+```bash
+GET    /buses                # List all buses
+GET    /drivers              # List all drivers
+GET    /drivers/:id          # Get driver by ID
+```
+
+### 🧭 Routing
+```bash
+POST   /routes/morning              # Generate morning routes
+POST   /routes/evening?busId=BUS12  # Generate evening reroute
+GET    /routes/active?busId=BUS12   # Get active route
+GET    /routes/:routeId             # Get specific route
+```
+
+### 📍 Live Tracking
+```bash
+POST   /tracking/location     # Update bus GPS location
+GET    /tracking/live?busId=BUS12  # Get live locations
+```
+
+### 🎟️ Attendance
+```bash
+POST   /attendance/tap                 # Log RFID tap
+GET    /attendance/history             # Get attendance records
+GET    /attendance/bus/:busId          # Get bus attendance
+```
+
+### ▶️ Trip Management
+```bash
+POST   /trip/start            # Start trip
+POST   /trip/end              # End trip
+GET    /trip/:tripId          # Get trip details
+GET    /trip/active           # Get active trips
+```
+
+### 📊 Analytics
+```bash
+GET    /analytics/summary     # Get summary stats
+GET    /analytics/export/csv  # Export CSV report
+GET    /analytics/export/pdf  # Export PDF report
+```
+
+---
+
+## 🧪 Testing API Endpoints
+
+### Test Authentication
 
 ```bash
-npm install firebase-admin firebase-functions
-npm install -g firebase-tools
-firebase login && firebase init functions
+# Login
+curl -X POST http://localhost:5000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@smartbus.ai","password":"password123"}'
+
+# Response:
+# {
+#   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+#   "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+# }
 ```
 
-### 2 — Service Account key
-
-Firebase Console → Project Settings → **Service accounts** → **Generate new private key**
-
-Save as `functions/serviceAccountKey.json` — already in `.gitignore`, never commit it.
-
-### 3 — Admin SDK init (`functions/index.js`)
-
-```javascript
-const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com'
-});
-
-const db = admin.firestore();
-```
-
-### 4 — Auto-create user doc on signup
-
-```javascript
-exports.onUserCreated = functions.auth.user().onCreate(async (user) => {
-  await db.collection('users').doc(user.uid).set({
-    email: user.email,
-    role: 'viewer',
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
-});
-```
-
-### 5 — `setUserRole` callable function
-
-```javascript
-exports.setUserRole = functions.https.onCall(async (data, context) => {
-  if (!context.auth || context.auth.token.role !== 'admin')
-    throw new functions.https.HttpsError('permission-denied', 'Admins only.');
-
-  const { uid, role } = data;
-  if (!['admin', 'editor', 'viewer'].includes(role))
-    throw new functions.https.HttpsError('invalid-argument', 'Invalid role.');
-
-  await admin.auth().setCustomUserClaims(uid, { role });
-  await db.collection('users').doc(uid).update({ role });
-  return { success: true, uid, role };
-});
-```
-
-### 6 — Bootstrap first admin
-
-Find your UID in Firebase Console → Authentication → Users, then:
+### Test Route Generation
 
 ```bash
-node scripts/setFirstAdmin.js   # paste UID inside the script, run once
+# Generate morning routes
+curl -X POST http://localhost:5000/routes/morning \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json"
 ```
 
-### 7 — Firestore security rules
+### Test Live Tracking
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function role() { return request.auth.token.role; }
-    function isAdmin() { return isSignedIn() && role() == 'admin'; }
-    function isEditor() { return isSignedIn() && role() in ['admin','editor']; }
+```bash
+# Update bus location
+curl -X POST http://localhost:5000/tracking/location \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "busId": "BUS001",
+    "latitude": 28.6139,
+    "longitude": 77.2090,
+    "speed": 45
+  }'
+```
 
-    match /users/{userId} {
-      allow read:  if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow write: if isAdmin();
-    }
-    match /posts/{postId} {
-      allow read:           if isSignedIn();
-      allow create, update: if isEditor();
-      allow delete:         if isAdmin();
-    }
-    match /settings/{docId} {
-      allow read, write: if isAdmin();
-    }
-  }
+### Test Attendance
+
+```bash
+# Log student tap
+curl -X POST http://localhost:5000/attendance/tap \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "studentId": "ST101",
+    "busId": "BUS001",
+    "eventType": "boarding"
+  }'
+```
+
+---
+
+## 🔒 Security Features
+
+```
+✅ JWT authentication (access + refresh tokens)
+✅ bcrypt password hashing (12 salt rounds)
+✅ Role-based access control (RBAC)
+✅ Input validation & sanitization
+✅ Rate limiting on auth endpoints
+✅ Socket.io JWT verification
+✅ HTTPS/TLS enforcement
+✅ NoSQL injection prevention
+✅ Audit logging for admin actions
+```
+
+---
+
+## 🛠️ Development
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+### Run Production Build
+
+```bash
+npm run start
+```
+
+### Lint Code
+
+```bash
+npm run lint
+```
+
+### Format Code
+
+```bash
+npm run format
+```
+
+---
+
+## 📦 Dependencies
+
+```json
+{
+  "express": "^4.18.0",
+  "mongoose": "^7.0.0",
+  "socket.io": "^4.5.0",
+  "jsonwebtoken": "^9.0.0",
+  "bcryptjs": "^2.4.3",
+  "redis": "^4.6.0",
+  "dotenv": "^16.0.0",
+  "cors": "^2.8.5",
+  "axios": "^1.3.0"
 }
 ```
 
-### 8 — Deploy
+---
+
+## 🚢 Deployment
+
+### Docker Setup
 
 ```bash
-firebase deploy --only functions        # functions only
-firebase deploy --only firestore:rules  # rules only
-firebase deploy                         # everything
+# Build Docker image
+docker build -t smartbus:latest .
+
+# Run container
+docker run -p 5000:5000 \
+  --env-file .env \
+  -e MONGO_URI=$MONGO_URI \
+  smartbus:latest
 ```
 
-</details>
+### Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Deploy to Railway
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login to Railway
+railway login
+
+# Deploy
+railway up
+
+# View logs
+railway logs
+```
+
+### Deploy to Render
+
+```bash
+# Connect your GitHub repo to Render
+# Create new Web Service
+# Set environment variables in dashboard
+# Deploy
+```
 
 ---
 
-## Middleware Usage
+## 📊 Git Workflow
 
-```javascript
-const { protect, authorize } = require('./middleware/authMiddleware');
+### Clone & Setup
 
-router.get('/profile',  protect,                              handler); // any logged-in user
-router.get('/admin',    protect, authorize('admin'),           handler); // admin only
-router.get('/fleet',    protect, authorize('manager','driver'), handler); // multiple roles
+```bash
+git clone https://github.com/Jaidhuria/Smartbus.AI.git
+cd Smartbus.AI
+npm install
 ```
 
-```javascript
-const { verifyToken, requireRole } = require('../middleware/auth'); // Firebase variant
+### Create Feature Branch
 
-app.get('/api/profile',      verifyToken,                             handler);
-app.post('/api/posts',       verifyToken, requireRole('admin','editor'), handler);
-app.delete('/api/posts/:id', verifyToken, requireRole('admin'),          handler);
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### Commit Changes
+
+```bash
+git add .
+git commit -m "feat: add your feature description"
+```
+
+### Push to Remote
+
+```bash
+git push origin feature/your-feature-name
+```
+
+### Create Pull Request
+
+```bash
+# Open PR on GitHub for code review
+```
+
+### Merge to Main
+
+```bash
+git checkout main
+git pull origin main
+git merge feature/your-feature-name
+git push origin main
+```
+
+### Deployment Push
+
+```bash
+# For production deployment
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
 ```
 
 ---
 
-## Environment Variables
+## 🗓️ Project Roadmap
 
-| Variable | Description |
-|---|---|
-| `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | JWT signing secret |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `RECAPTCHA_SECRET` | reCAPTCHA server secret |
-| `EMAIL` | Sender Gmail address |
-| `EMAIL_PASS` | Gmail app password |
-| `PORT` | Server port (default `5000`) |
+| Phase | Status | Milestones |
+|-------|--------|-----------|
+| **0-1** | ✅ | MVP setup & dataset preparation |
+| **2-3** | ✅ | Backend core & OSRM integration |
+| **4-5** | 🚀 | Parent & Admin portals |
+| **6-8** | 🚀 | Attendance & real-time tracking |
+| **9-13** | 📋 | Analytics, deployment & polish |
 
 ---
 
-<div align="center">
-<sub>Part of the Smartbus platform</sub>
-</div>
+## 🤝 Contributing
+
+We welcome contributions! Follow this process:
+
+```bash
+# 1. Fork the repo
+# 2. Create feature branch
+git checkout -b feature/amazing-feature
+
+# 3. Make changes & commit
+git add .
+git commit -m "feat: add amazing feature"
+
+# 4. Push to your fork
+git push origin feature/amazing-feature
+
+# 5. Open Pull Request on GitHub
+```
+
+### Code Standards
+
+- Use ESLint for JavaScript
+- Follow REST API conventions
+- Add JSDoc comments for functions
+- Write tests for new features
+- Update README if adding features
+
+---
+
+## 📄 License
+
+MIT License © 2026 Smartbus.AI
+
+See [LICENSE](LICENSE) for details.
+
+---
+
+## 👥 Support & Contact
+
+**Project Lead:** Jai Dhuria  
+**Repository:** [Jaidhuria/Smartbus.AI](https://github.com/Jaidhuria/Smartbus.AI)  
+**Issues:** [GitHub Issues](https://github.com/Jaidhuria/Smartbus.AI/issues)  
+
+---
+
+## 🎯 Getting Started Checklist
+
+- [ ] Clone repository
+- [ ] Install dependencies (`npm install`)
+- [ ] Copy `.env.example` to `.env`
+- [ ] Configure MongoDB URI
+- [ ] Configure JWT secrets
+- [ ] Configure Redis URL
+- [ ] Run `npm run dev`
+- [ ] Seed data (`curl -X POST http://localhost:5000/api/seed/students`)
+- [ ] Test endpoints with curl or Postman
+- [ ] Read API documentation
+- [ ] Start building!
+
+---
+
+**Happy coding! 🚀**
