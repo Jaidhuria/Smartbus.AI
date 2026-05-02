@@ -1,8 +1,19 @@
+// user to convert in student ....
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const {OAuth2Client} = require("google-auth-library");
 const User = require("../models/user");
+
+// Import admin functions
+const {
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  toggleUserStatus,
+  deleteUser
+} = require("./adminFunctions");
 
 // create a client instance once; require client id from env
 if (!process.env.GOOGLE_CLIENT_ID) {
@@ -20,25 +31,26 @@ const generateToken = (id) => {
 };
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password, captchaToken } = req.body;
+    const { name, email, password, captchaToken, role } = req.body;
 
-    if (!captchaToken)
-      return res.status(400).json({ message: "Captcha required" });
+    // Captcha check is disabled for now to avoid blocking requests
+    // if (!captchaToken)
+    //   return res.status(400).json({ message: "Captcha required" });
 
     // Verify Captcha
-    const captchaVerify = await axios.post(
-      "https://www.google.com/recaptcha/api/siteverify",
-      null,
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET,
-          response: captchaToken,
-        },
-      }
-    );
+    // const captchaVerify = await axios.post(
+    //   "https://www.google.com/recaptcha/api/siteverify",
+    //   null,
+    //   {
+    //     params: {
+    //       secret: process.env.RECAPTCHA_SECRET,
+    //       response: captchaToken,
+    //     },
+    //   }
+    // );
 
-    if (!captchaVerify.data.success)
-      return res.status(400).json({ message: "Captcha failed" });
+    // if (!captchaVerify.data.success)
+    //   return res.status(400).json({ message: "Captcha failed" });
 
     const userExists = await User.findOne({ email });
     if (userExists)
@@ -47,16 +59,21 @@ exports.signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const publicRoles = ["user", "student"];
+    const assignedRole = publicRoles.includes(role) ? role : "user";
+
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
+      role: assignedRole,
     });
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id),
     });
 
@@ -105,6 +122,7 @@ exports.googleAuth = async (req, res) => {
         email,
         googleId,
         password: hashedPassword,
+        role: "user", // Default role for Google auth
       });
     }
 
@@ -112,6 +130,7 @@ exports.googleAuth = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -124,30 +143,36 @@ exports.login = async (req, res) => {
   try {
     const { email, password, captchaToken } = req.body;
 
-    if (!captchaToken)
-      return res.status(400).json({ message: "Captcha required" });
+    // Captcha check is disabled for now to avoid blocking requests
+    // if (!captchaToken)
+    //   return res.status(400).json({ message: "Captcha required" });
 
-    const captchaVerify = await axios.post(
-      "https://www.google.com/recaptcha/api/siteverify",
-      null,
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET,
-          response: captchaToken,
-        },
-      }
-    );
+    // const captchaVerify = await axios.post(
+    //   "https://www.google.com/recaptcha/api/siteverify",
+    //   null,
+    //   {
+    //     params: {
+    //       secret: process.env.RECAPTCHA_SECRET,
+    //       response: captchaToken,
+    //     },
+    //   }
+    // );
 
-    if (!captchaVerify.data.success)
-      return res.status(400).json({ message: "Captcha failed" });
+    // if (!captchaVerify.data.success)
+    //   return res.status(400).json({ message: "Captcha failed" });
 
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (!user.isActive) {
+        return res.status(401).json({ message: "Account is deactivated" });
+      }
+
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         token: generateToken(user._id),
       });
     } else {
@@ -255,4 +280,37 @@ exports.resetPassword = async (req, res) => {
 
  }
 
+};
+
+// USER PROFILE FUNCTIONS
+
+// Get user profile (Authenticated users)
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update user profile (Authenticated users)
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    res.json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 };

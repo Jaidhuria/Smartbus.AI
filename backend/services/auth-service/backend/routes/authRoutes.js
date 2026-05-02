@@ -1,4 +1,8 @@
 const express = require("express");
+const {
+  protect,
+  authorize
+} = require("../middleware/authMiddleware");
 
 const {
  signup,
@@ -6,30 +10,38 @@ const {
  googleAuth,
  sendOTP,
  verifyOTP,
- resetPassword
+ resetPassword,
+ getProfile,
+ updateProfile
 } = require("../controllers/authController");
+
+const {
+ getAllUsers,
+ getUserById,
+ updateUserRole,
+ toggleUserStatus,
+ deleteUser
+} = require("../controllers/adminFunctions");
 
 const router = express.Router();
 
-// registration
+// Public routes
 router.post("/register", signup);
-
-// login
 router.post("/login", login);
-
-// google auth
 router.post("/google", googleAuth);
-
-
-// 🔐 Forgot Password Routes
-
-// send OTP to email
 router.post("/send-otp", sendOTP);
-
-// verify OTP
 router.post("/verify-otp", verifyOTP);
-
-// reset password
 router.post("/reset-password", resetPassword);
+
+// Protected routes (require authentication)
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
+
+// Admin only routes
+router.get("/users", protect, authorize("admin"), getAllUsers);
+router.get("/users/:id", protect, authorize("admin"), getUserById);
+router.put("/users/:id/role", protect, authorize("admin"), updateUserRole);
+router.put("/users/:id/status", protect, authorize("admin"), toggleUserStatus);
+router.delete("/users/:id", protect, authorize("admin"), deleteUser);
 
 module.exports = router;
