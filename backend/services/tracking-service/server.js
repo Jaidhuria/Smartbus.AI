@@ -1,0 +1,21 @@
+// ** Tracking Service - Server starting Point
+import dotenv from "dotenv";
+dotenv.config();
+import driverRoutes from "./routes/driverRoutes.js";
+
+import app from "./src/app.js";
+import { connectDB } from "./config/db.js";
+
+const PORT = process.env.PORT || 5000;
+
+app.use("/api/drivers", driverRoutes);
+
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`Tracking Service running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();

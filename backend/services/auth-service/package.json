@@ -1,0 +1,15 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Authentication service for Smartbus",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "build": "cd backend && npm run build"
+  },
+  "keywords": ["authentication", "nodejs", "express", "mongodb"],
+  "author": "",
+  "license": "ISC"
+}
